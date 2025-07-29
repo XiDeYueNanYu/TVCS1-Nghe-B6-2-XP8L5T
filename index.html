@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Thêm viewport để tối ưu hóa di động -->
+    <title>越南语听力练习</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin: 0; 
+            padding-bottom: 300px; /* Mặc định cho màn hình lớn */
+            background-color: #f7fbf3; /*f7fbf3  3f4040*/
+        }
+        #gameContainer {
+            display: block;
+            min-height: calc(100vh - 150px); /* Đảm bảo nội dung chiếm đủ chiều cao màn hình */
+        }
+        #infoBox { 
+            width: 95%; 
+            max-width: 700px;
+            min-height: 100px; 
+            margin: 0 auto; 
+            border: 2px solid #91b66f; /*041b31 1f4263*/
+            background: #85ae5f; /*ecf2e4 fefefc*/
+            color: #ffffff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: clamp(40px, 5vw, 60px);
+            font-weight: bold;
+        }
+        #contactBox { 
+            width: 90%; 
+            max-width: 700px;
+            min-height: 25px; 
+            margin: 0px auto; 
+            border: 2px solid #91b66f; 
+            background: #85ae5f; 
+            color: #f1c232; 
+            display: flex; 
+            align-items: center; 
+            justify-content: left; 
+            padding-left: 20px;
+            font-size: clamp(16px, 2vw, 20px); 
+            font-weight: bold;
+        }
+        #instructionBox { 
+            width: 90%; 
+            max-width: 700px;
+            min-height: 25px; 
+            margin: 0px auto; 
+            border: 2px solid #91b66f; 
+            background: #85ae5f; 
+            color: #f7e19c; 
+            display: flex; 
+            align-items: center; 
+            justify-content: left; 
+            padding-left: 20px;
+            font-size: clamp(16px, 2vw, 20px); 
+            font-weight: bold;
+        }
+        #controls { 
+            position: fixed; /* Cố định ở cuối màn hình */
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 800px; /* Giới hạn chiều rộng tối đa */
+            background: #f7fbf3;
+                        border: 3px solid #f7fbf3;                        
+            padding: 10px 0; 
+           /* box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); */
+            z-index: 1000; 
+        }
+        #controls div {
+            margin: 5px 0; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        button { 
+            padding: 8px 8px; 
+            margin: 0 5px; 
+            cursor: pointer; 
+            border: 2px solid #85ae5f; 
+            background: #85ae5f; /*192332*/
+                        box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2);
+            color: #fffbef; 
+            font-size: 28px; 
+            border-radius: 5px; 
+        }
+        #sentenceNumber { 
+            width: 50px; 
+            padding: 10px; 
+            text-align: center; 
+            border: 3px solid #85ae5f; /*041b31 68838B*/
+            background: #f1cc76; 
+            color: #000; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            -moz-appearance: textfield; 
+        }
+        #sentenceNumber::-webkit-inner-spin-button, 
+        #sentenceNumber::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        #sentenceNumber:disabled { 
+            background: #eee; 
+        }
+        .disabled { 
+            cursor: not-allowed; 
+            pointer-events: none; 
+        }
+        .active-mode { 
+            border: 2px solid #fed16a; 
+        }
+        #indicator { 
+            width: 95%;
+                        max-width: 700px; 
+            min-height: 50px; 
+            margin: 10px auto; 
+                        padding: 5px;
+            border: 3px solid #fed16a; 
+            background: #ffffe0; 
+            border-radius: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        #optionsContainer {
+            width: 100%;
+            max-width: 700px;
+            margin: 10px auto;
+        }
+        .optionBtn {
+            width: 95%; 
+            max-width: 700px;
+            padding: 10px;
+            margin: 5px 0;
+            border: 2px solid #ffffff;
+            background: #ffffff; /*E6EDD9*/
+            color: #000000;
+                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            font-size: 30px;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .optionBtn:hover {
+            background: #D2E4C4;
+        }
+        .correct {
+            background: #B7D7AA !important;
+        }
+        .wrong {
+            background: #CE6D5E !important;
+        }
+        #score { 
+            display: none; 
+            width: 100%;
+            max-width: 700px;
+            margin: 10px auto; 
+            color: #FF6820; 
+            font-size: 30px; 
+            text-align: center;
+        }
+        #wrongSentences { 
+            display: none; 
+            width: 95%; 
+            max-width: 700px; 
+            margin: 10px auto; 
+            padding: 10px; 
+            border: 2px solid #CE6D5E; 
+            background: #FFF0F0; 
+            color: #CE6D5E; 
+            font-size: 30px; 
+            text-align: left; 
+            border-radius: 5px; 
+        }
+        #results { 
+            display: none; 
+            width: 95%;
+            max-width: 700px;        
+            margin: 10px auto; 
+            padding: 10px; 
+            border: 2px solid #734A2E; 
+            background: #fffbef; 
+            color: #000; 
+            font-size: 30px; 
+            text-align: left; 
+            border-radius: 5px; 
+            white-space: pre-line;
+        }
+
+        /* Media query cho thiết bị di động */
+        @media (max-width: 768px) {
+            body {
+                padding-bottom: 200px; /* Giảm padding-bottom cho điện thoại */
+            }
+            #controls {
+                padding: 5px 0; /* Giảm padding */
+            }
+            button {
+                padding: 6px 6px; /* Giảm kích thước nút */
+                font-size: 20px; /* Giảm kích thước chữ */
+            }
+            #sentenceNumber {
+                width: 40px; /* Giảm chiều rộng */
+                padding: 8px; /* Giảm padding */
+                font-size: 14px; /* Giảm kích thước chữ */
+            }
+            .optionBtn {
+                font-size: 20px; /* Giảm kích thước chữ cho đáp án */
+                padding: 8px; /* Giảm padding */
+            }
+            #infoBox {
+                font-size: clamp(30px, 4vw, 40px); /* Giảm kích thước chữ */
+            }
+            #contactBox, #instructionBox {
+                font-size: clamp(14px, 2vw, 16px); /* Giảm kích thước chữ */
+            }
+            #indicator {
+                min-height: 40px; /* Giảm chiều cao tối thiểu */
+            }
+            #results, #wrongSentences, #score {
+                font-size: 24px; /* Giảm kích thước chữ */
+                                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="infoBox">习得越南语<br>听力练习</div>
+        <div id="contactBox">讲师-阮玉煌 | Weixin：XiDeYueNanYu</div>
+        <div id="instructionBox">选择与播放内容相符的选项</div>
+        <div id="indicator"></div>
+        <div id="optionsContainer"></div>
+        <div id="results"></div>
+        <div id="score">0/0</div>
+        <div id="wrongSentences"></div>
+    </div>
+    <div id="controls">
+        <div>
+            <button id="freeModeBtn" class="active-mode">自由模式</button>
+            <button id="testModeBtn">作业模式</button>
+        </div>
+        <div>
+            <button id="autoContinueBtn">自动继续</button>
+            <button id="showHideBtn">显示-隐藏</button>
+        </div>
+        <div>
+            <button id="prevBtn">◀</button>
+            <input type="text" id="sentenceNumber" inputmode="numeric" pattern="[0-9]*">
+            <button id="nextBtn">▶</button>
+            <button id="replayBtn">再听一遍</button>
+        </div>
+    </div>
+    <audio id="mainAudio" src="audio.mp3"></audio>
+    <audio id="correctAudio" src="Dung.mp3"></audio>
+    <audio id="wrongAudio" src="Sai.mp3"></audio>
+
+    <script>
+        const audio = document.getElementById('mainAudio');
+        const correctAudio = document.getElementById('correctAudio');
+        const wrongAudio = document.getElementById('wrongAudio');
+        const indicator = document.getElementById('indicator');
+        const sentenceNumber = document.getElementById('sentenceNumber');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const replayBtn = document.getElementById('replayBtn');
+        const freeModeBtn = document.getElementById('freeModeBtn');
+        const testModeBtn = document.getElementById('testModeBtn');
+        const autoContinueBtn = document.getElementById('autoContinueBtn');
+        const showHideBtn = document.getElementById('showHideBtn');
+        const scoreDisplay = document.getElementById('score');
+        const wrongSentencesDisplay = document.getElementById('wrongSentences');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const resultsDisplay = document.getElementById('results');
+
+        const buttons = [prevBtn, nextBtn, replayBtn, freeModeBtn, testModeBtn, autoContinueBtn, showHideBtn];
+
+const sentences = [
+    {
+        "audioFile": "audio.mp3",
+        "start": 0.438917,
+        "end": 3.358917,
+        "correctAnswer": "Chiếc xe này nặng bằng chiếc xe kia.",
+        "translation": "这辆车和那辆车一样重。",
+        "options": [
+            "Chiếc che này nặng bằng chiếc xe kia.",
+            "Chiếc xe này nặng bẳng chiếc xe kia.",
+            "Chiếc xe này nặng bằng chiếc sa kia.",
+            "Chiếc xe này nặng bằng chiếc xe kia."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 7.068917,
+        "end": 10.768917,
+        "correctAnswer": "Diện tích ngôi nhà này bằng diện tích ngôi nhà kia.",
+        "translation": "这座房子的面积和那座房子一样大。",
+        "options": [
+            "Diện tịch ngôi nhà này bằng diện tích ngôi nhà kia.",
+            "Diện tích ngôi nhà này bằng diển tích ngôi nhà kia.",
+            "Diện tích ngôi nhà này bằng diện tich ngôi nhà kia.",
+            "Diện tích ngôi nhà này bằng diện tích ngôi nhà kia."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 14.718917,
+        "end": 17.638917,
+        "correctAnswer": "Con gà này béo như con gà kia.",
+        "translation": "这只鸡和那只鸡一样肥。",
+        "options": [
+            "Con gà này béo như con cà kia.",
+            "Con gà này béo như con gà kêa.",
+            "Con cà này béo như con gà kia.",
+            "Con gà này béo như con gà kia."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 21.578917,
+        "end": 24.488917,
+        "correctAnswer": "Ngôi nhà này rộng như ngôi nhà kia.",
+        "translation": "这栋房子和那栋一样宽。",
+        "options": [
+            "Ngôi nhà này rông như ngôi nhà kia.",
+            "Ngôi nhà này rộng như ngôi nà kia.",
+            "Ngôi nhá này rộng như ngôi nhà kia.",
+            "Ngôi nhà này rộng như ngôi nhà kia."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 28.478917,
+        "end": 31.888917,
+        "correctAnswer": "Quyển từ điển này dày như quyển từ điển kia.",
+        "translation": "这本词典和那本一样厚。",
+        "options": [
+            "Quyển từ điển này dày như quyển từ diển kia.",
+            "Quyển từ điển này dày như quyển từ điện kia.",
+            "Quyển từ điển này dày như quyển tư điển kia.",
+            "Quyển từ điển này dày như quyển từ điển kia."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 35.918917,
+        "end": 37.758917,
+        "correctAnswer": "Cậu ấy nặng hơn tôi.",
+        "translation": "他比我重。",
+        "options": [
+            "Cậu ấy nặng hơm tôi.",
+            "Cậu ẩy nặng hơn tôi.",
+            "Cậu ấy nặng hơn toi.",
+            "Cậu ấy nặng hơn tôi."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 40.908917,
+        "end": 43.428917,
+        "correctAnswer": "Cậu ấy nặng hơn so với tôi.",
+        "translation": "他比我更重。",
+        "options": [
+            "Cầu ấy nặng hơn so với tôi.",
+            "Cậu ấy nặng hơn xô với tôi.",
+            "Cậu ấy nặng hơn so với tui.",
+            "Cậu ấy nặng hơn so với tôi."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 46.658917,
+        "end": 48.438917,
+        "correctAnswer": "Tôi nhẹ hơn cậu ấy.",
+        "translation": "我比他轻。",
+        "options": [
+            "Tôi nhẹ hơn cầu ấy.",
+            "Tôi nhè hơn cậu ấy.",
+            "Tôi nhẹ hơn cậu ẩy.",
+            "Tôi nhẹ hơn cậu ấy."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 52.298917,
+        "end": 54.558917,
+        "correctAnswer": "Tôi nhẹ hơn so với cậu ấy.",
+        "translation": "我比他更轻。",
+        "options": [
+            "Tôi nhẹ hơm so với cậu ấy.",
+            "Tôi nhẹ hơn so với cậu ẩy.",
+            "Tôi nhẽ hơn so với cậu ấy.",
+            "Tôi nhẹ hơn so với cậu ấy."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 57.968917,
+        "end": 60.788917,
+        "correctAnswer": "Chiếc bút này dài hơn chiếc bút kia.",
+        "translation": "这支笔比那支笔长。",
+        "options": [
+            "Chiếc bút này dài hơn chiếc bụt kia.",
+            "Chiếc bút này dài hơn chiệc bút kia.",
+            "Chiếc bút này dày hơn chiếc bút kia.",
+            "Chiếc bút này dài hơn chiếc bút kia."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 64.608917,
+        "end": 67.968917,
+        "correctAnswer": "Chiếc bút này dài hơn so với chiếc bút kia.",
+        "translation": "这支笔比那支笔更长。",
+        "options": [
+            "Chiếc bút này dài hơn so với chiếc bụt kia.",
+            "Chiếc bút này dài hơm so với chiếc bút kia.",
+            "Chiếc bút này dài hơn so với chiếc bục kia.",
+            "Chiếc bút này dài hơn so với chiếc bút kia."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 71.918917,
+        "end": 75.198917,
+        "correctAnswer": "Chiếc bút kia ngắn hơn so với chiếc bút này.",
+        "translation": "那支笔比这支笔短。",
+        "options": [
+            "Chiếc bút kia ngắn hơn so với chiếc bụt này.",
+            "Chiếc bút kia ngẳn hơn so với chiếc bút này.",
+            "Chiếc bút kia ngắn hơn xô với chiếc bút này.",
+            "Chiếc bút kia ngắn hơn so với chiếc bút này."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 78.468917,
+        "end": 81.348917,
+        "correctAnswer": "Chiếc bút kia ngắn hơn chiếc bút này.",
+        "translation": "那支笔比这支笔短。",
+        "options": [
+            "Chiếc bút kia ngẳn hơn chiếc bút này.",
+            "Chiếc bút kia ngắn hơn chiếc bụt này.",
+            "Chiếc bụt kia ngắn hơn chiếc bút này.",
+            "Chiếc bút kia ngắn hơn chiếc bút này."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 84.708917,
+        "end": 87.078917,
+        "correctAnswer": "Tuổi tôi bằng tuổi bạn ấy.",
+        "translation": "我的年龄和他一样大。",
+        "options": [
+            "Tuổi tôi bằng tuổi bãn ấy.",
+            "Tuổi tôi bằng tuỏi bạn ấy.",
+            "Tuổi tôi bàng tuổi bạn ấy.",
+            "Tuổi tôi bằng tuổi bạn ấy."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 90.388917,
+        "end": 92.758917,
+        "correctAnswer": "Tôi và bạn ấy bằng tuổi nhau.",
+        "translation": "我和他同岁。",
+        "options": [
+            "Tôi và bạn ấy bàng tuổi nhau.",
+            "Tôi và bạn ấy bằng tuổi nhao.",
+            "Tôi và bạn ấy bằng tui nhau.",
+            "Tôi và bạn ấy bằng tuổi nhau."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 96.678917,
+        "end": 98.878917,
+        "correctAnswer": "Tôi cao hơn so với bạn ấy.",
+        "translation": "我比他高。",
+        "options": [
+            "Tôi cao hơn so với bãn ấy.",
+            "Tôi cao hơn xô với bạn ấy.",
+            "Tôi cao hơn so với bạn ẩy.",
+            "Tôi cao hơn so với bạn ấy."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 101.938917,
+        "end": 103.618917,
+        "correctAnswer": "Tôi cao hơn bạn ấy.",
+        "translation": "我比他高。",
+        "options": [
+            "Tôi cao hơm bạn ấy.",
+            "Tôi cao hơn bạn ẩy.",
+            "Tôi cao hơn bạng ấy.",
+            "Tôi cao hơn bạn ấy."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 107.228917,
+        "end": 108.898917,
+        "correctAnswer": "Đôi giày này đắt nhất.",
+        "translation": "这双鞋最贵。",
+        "options": [
+            "Đôi giày này đát nhất.",
+            "Đôi giày này đắt nhấc.",
+            "Đôi giày này dát nhất.",
+            "Đôi giày này đắt nhất."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 111.908917,
+        "end": 113.578917,
+        "correctAnswer": "Chiếc váy này đẹp nhất.",
+        "translation": "这条裙子最漂亮。",
+        "options": [
+            "Chiếc váy này đẹp nhắt.",
+            "Chiếc váy này đep nhất.",
+            "Chiếc váy này đẹp nhấc.",
+            "Chiếc váy này đẹp nhất."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 116.678917,
+        "end": 118.518917,
+        "correctAnswer": "Con lợn này béo nhất.",
+        "translation": "这只猪最胖。",
+        "options": [
+            "Con lợn này bếu nhất.",
+            "Con lợn này béo nhấc.",
+            "Con lợn này béo nhắt.",
+            "Con lợn này béo nhất."
+        ]
+    },
+    {
+        "audioFile": "audio.mp3",
+        "start": 121.458917,
+        "end": 122.968917,
+        "correctAnswer": "Cô ấy đẹp nhất.",
+        "translation": "她最漂亮。",
+        "options": [
+            "Cô ấy đep nhất.",
+            "Cô ấy đẹp nhắt.",
+            "Cô ẩy đẹp nhất.",
+            "Cô ấy đẹp nhất."
+        ]
+    }
+];
+
+        let currentIndex = 0;
+        let isFreeMode = true;
+        let correctCount = 0;
+        let isPlaying = false;
+        let correctSentences = new Set();
+        let wrongSentences = new Set();
+        let autoContinue = false;
+        let showAnswer = false;
+        let userAnswers = [];
+
+        // Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function init() {
+            updateSentenceDisplay();
+        }
+
+        function updateSentenceDisplay() {
+            sentenceNumber.value = currentIndex + 1;
+            indicator.style.background = '#ffffe0';
+            if (isFreeMode && showAnswer) {
+                indicator.innerHTML = `
+                    <div style="font-size: 18px; font-weight: bold; color: #85ae5f;">${sentences[currentIndex].translation}</div>
+                `;
+            } else {
+                indicator.innerHTML = '';
+            }
+            updateOptions();
+            if (!isFreeMode) updateScore();
+        }
+
+        function updateOptions() {
+            optionsContainer.innerHTML = '';
+            const shuffledOptions = shuffleArray(sentences[currentIndex].options);
+            shuffledOptions.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'optionBtn';
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(option);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function playCurrentSentence() {
+            if (isPlaying) audio.pause();
+            buttons.forEach(btn => btn.classList.add('disabled'));
+            sentenceNumber.disabled = true;
+            isPlaying = true;
+            audio.src = sentences[currentIndex].audioFile;
+            audio.currentTime = sentences[currentIndex].start;
+            audio.play().catch(error => {
+                console.error('Audio playback failed:', error);
+                alert('Vui lòng nhấn nút “再听一遍” để phát âm thanh.');
+                buttons.forEach(btn => btn.classList.remove('disabled'));
+                sentenceNumber.disabled = false;
+                isPlaying = false;
+            });
+
+            audio.ontimeupdate = () => {
+                if (audio.currentTime >= sentences[currentIndex].end) {
+                    audio.pause();
+                    audio.ontimeupdate = null;
+                    buttons.forEach(btn => btn.classList.remove('disabled'));
+                    sentenceNumber.disabled = false;
+                    isPlaying = false;
+                }
+            };
+        }
+
+        function moveSentence(direction) {
+            currentIndex = (currentIndex + direction + sentences.length) % sentences.length;
+            updateSentenceDisplay();
+            playCurrentSentence();
+        }
+
+        function checkAnswer(selectedAnswer) {
+            const correctAnswer = sentences[currentIndex].correctAnswer;
+            const optionButtons = optionsContainer.getElementsByClassName('optionBtn');
+            
+            // Clear previous styles
+            for (let btn of optionButtons) {
+                btn.classList.remove('correct', 'wrong');
+                btn.disabled = !isFreeMode; // Only disable buttons in Test Mode
+            }
+
+            // Find and style the selected button
+            for (let btn of optionButtons) {
+                if (btn.textContent === selectedAnswer) {
+                    if (selectedAnswer === correctAnswer) {
+                        indicator.style.background = '#B7D7AA';
+                                                indicator.innerHTML = `
+                    <div style="font-size: 18px; font-weight: bold; color: #000000;">${sentences[currentIndex].translation}</div>
+                `;
+                        btn.classList.add('correct');
+                        correctAudio.play().catch(error => {
+                            console.error('Correct audio playback failed:', error);
+                        });
+                    } else {
+                        indicator.style.background = '#CE6D5E';
+                                                indicator.innerHTML = `
+                    <div style="font-size: 18px; font-weight: bold; color: #000000;">${sentences[currentIndex].translation}</div>
+                `;
+                        btn.classList.add('wrong');
+                        wrongAudio.play().catch(error => {
+                            console.error('Wrong audio playback failed:', error);
+                        });
+                    }
+                }
+            }
+
+            if (!isFreeMode) {
+                userAnswers[currentIndex] = selectedAnswer;
+                if (selectedAnswer === correctAnswer && !correctSentences.has(currentIndex)) {
+                    correctCount++;
+                    correctSentences.add(currentIndex);
+                    wrongSentences.delete(currentIndex);
+                } else if (selectedAnswer !== correctAnswer && !correctSentences.has(currentIndex)) {
+                    wrongSentences.add(currentIndex);
+                }
+                updateScore();
+
+                // Auto-move to next sentence in Test Mode
+                const audioToWait = (selectedAnswer === correctAnswer) ? correctAudio : wrongAudio;
+                audioToWait.onended = () => {
+                    if (userAnswers.length === sentences.length) {
+                        showResults();
+                    } else {
+                        setTimeout(() => {
+                            moveSentence(1);
+                        }, 200);
+                    }
+                };
+            } else if (isFreeMode && autoContinue && selectedAnswer === correctAnswer) {
+                // Auto-move in Free Mode only if answer is correct and autoContinue is enabled
+                correctAudio.onended = () => {
+                    setTimeout(() => {
+                        moveSentence(1);
+                    }, 200);
+                };
+            } else {
+                correctAudio.onended = null;
+                wrongAudio.onended = null;
+            }
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = `${correctCount}/${sentences.length}`;
+            scoreDisplay.style.display = 'block'; // Hiển thị score trong Test Mode
+        }
+
+        function showResults() {
+            let resultText = `练习完成！\n正确答案数量：${correctCount}/${sentences.length}\n正确率：${((correctCount / sentences.length) * 100).toFixed(2)}%\n错误题目：`;
+            wrongSentences.forEach(index => {
+                resultText += `\n第${index + 1}题：\n你的选择：${userAnswers[index] || '未选择'}\n正确答案：${sentences[index].correctAnswer}\n`;
+            });
+            if (wrongSentences.size === 0) {
+                resultText += '\n全部正确！';
+            }
+            resultsDisplay.textContent = resultText;
+            resultsDisplay.style.display = 'block';
+        }
+
+        prevBtn.onclick = () => {
+            moveSentence(-1);
+        };
+
+        nextBtn.onclick = () => {
+            moveSentence(1);
+        };
+
+        replayBtn.onclick = () => {
+            playCurrentSentence();
+        };
+
+        freeModeBtn.onclick = () => {
+            isFreeMode = true;
+            freeModeBtn.classList.add('active-mode');
+            testModeBtn.classList.remove('active-mode');
+            autoContinueBtn.disabled = false;
+            autoContinueBtn.classList.remove('disabled');
+            showHideBtn.disabled = false;
+            showHideBtn.classList.remove('disabled');
+            scoreDisplay.style.display = 'none';
+            wrongSentencesDisplay.style.display = 'none';
+            resultsDisplay.style.display = 'none';
+            updateSentenceDisplay();
+        };
+
+        testModeBtn.onclick = () => {
+            isFreeMode = false;
+            testModeBtn.classList.add('active-mode');
+            freeModeBtn.classList.remove('active-mode');
+            autoContinueBtn.disabled = true;
+            autoContinueBtn.classList.add('disabled');
+            showHideBtn.disabled = true;
+            showHideBtn.classList.add('disabled');
+            showHideBtn.classList.remove('active-mode');
+            showAnswer = false;
+            scoreDisplay.style.display = 'block';
+            currentIndex = 0;
+            correctCount = 0;
+            correctSentences.clear();
+            wrongSentences.clear();
+            userAnswers = [];
+            for (let i = 0; i < sentences.length; i++) {
+                wrongSentences.add(i);
+            }
+            updateSentenceDisplay();
+        };
+
+        autoContinueBtn.onclick = () => {
+            if (isFreeMode) {
+                autoContinue = !autoContinue;
+                autoContinueBtn.classList.toggle('active-mode');
+                if (!autoContinue) {
+                    correctAudio.onended = null;
+                }
+            }
+        };
+
+        showHideBtn.onclick = () => {
+            if (isFreeMode) {
+                showAnswer = !showAnswer;
+                showHideBtn.classList.toggle('active-mode');
+                updateSentenceDisplay();
+            }
+        };
+
+        sentenceNumber.onchange = () => {
+            if (!isPlaying) {
+                const num = parseInt(sentenceNumber.value) - 1;
+                if (!isNaN(num) && num >= 0 && num < sentences.length) {
+                    currentIndex = num;
+                    updateSentenceDisplay();
+                    playCurrentSentence();
+                } else {
+                    alert(`输入范围： 1 到 ${sentences.length}`);
+                    updateSentenceDisplay();
+                }
+            }
+        };
+
+        sentenceNumber.onkeydown = (e) => {
+            if (!isPlaying) {
+                if (e.key === 'ArrowLeft') {
+                    moveSentence(-1);
+                }
+                if (e.key === 'ArrowRight') {
+                    moveSentence(1);
+                }
+            }
+        };
+
+        init();
+    </script>
+</body>
+</html>
